@@ -2,7 +2,7 @@ export interface FinancialReport {
     transaccion_id: string;
     cliente_id: string;
     cantidad: number;
-    categoria: string;
+    categoría: string;
     fecha: string;
     tipo: string; 
     estado: string; 

@@ -46,7 +46,6 @@
                     color="primary"
                     variant="tonal"
                     @click="cancelCreate" 
-                    text
                 >
                     Cancelar
                 </v-btn>

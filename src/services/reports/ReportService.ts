@@ -58,7 +58,7 @@ export class FinancialReportService {
     }
 
     async updateReport(id: string, report: Partial<FinancialReport>): Promise<void> {
-        const url = `${API_URL}/financial-reports/${id}`;
+        const url = `http://localhost:4000/financial-reports/transactions/${id}`;
         return fetch(url, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
