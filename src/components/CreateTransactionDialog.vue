@@ -62,8 +62,9 @@
     </v-dialog>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { defineProps, defineEmits, ref, watch } from 'vue';
+import type { TransactionType, TransactionState } from '@/services/reports/types';
 
 const props = defineProps({
     isCreateDialogVisible: {
@@ -81,8 +82,8 @@ const tipo = ref(null);
 const estado = ref(null);
 const fecha = ref(null);
 
-const transactionTypes = ['income', 'expense']; 
-const transactionStates = ['activada', 'desactivada'];
+const transactionTypes: TransactionType[] = ['income', 'expense'];
+const transactionStates: TransactionState[] = ['activada', 'desactivada'];
 
 watch(() => props.isCreateDialogVisible, (newDialogVisible) => {
     isDialogVisible.value = newDialogVisible;

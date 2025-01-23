@@ -3,8 +3,26 @@ import type { FinancialReport } from './types';
 
 export class FinancialReportService {
 
-    async getReports(): Promise<FinancialReport[]> {
-        const url = 'http://localhost:4000/financial-reports/transactions';
+    async getReports(filters: {
+        cliente_id?: string;
+        categoría?: string;
+        tipo?: string;
+        estado?: string;
+        fechaInicio?: string;
+        fechaFin?: string;
+    } = {}): Promise<FinancialReport[]> {
+        const baseUrl = 'http://localhost:4000/financial-reports/transactions';
+
+        const queryParams = new URLSearchParams();
+
+        if (filters.cliente_id) queryParams.append('cliente_id', filters.cliente_id);
+        if (filters.categoría) queryParams.append('categoría', filters.categoría);
+        if (filters.tipo) queryParams.append('tipo', filters.tipo);
+        if (filters.estado) queryParams.append('estado', filters.estado);
+        if (filters.fechaInicio) queryParams.append('fechaInicio', filters.fechaInicio);
+        if (filters.fechaFin) queryParams.append('fechaFin', filters.fechaFin);
+
+        const url = queryParams.toString() ? `${baseUrl}?${queryParams.toString()}` : baseUrl;
 
         try {
             const response = await fetch(url, {

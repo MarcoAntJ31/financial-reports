@@ -9,3 +9,5 @@ export interface FinancialReport {
 }
 
 export type ActionType = 'edit' | 'delete';
+export type TransactionType = 'income' | 'expense';
+export type TransactionState = 'activada' | 'desactivada';

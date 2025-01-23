@@ -3,50 +3,29 @@
         <SideMenu @select-option="optionSelected" />
         <v-main>
             <div class="main-content fill-height pa-10">
-                    <v-card 
-                        flat 
-                        prepend-icon="mdi-table" 
-                        title="Transacciones"
-                        :loading="loading"
-                        class="mt-5"
-                    >
+                <TransaccionesFilters 
+                    @apply-filters="fetchFilteredReports" 
+                    @clear-filters="fetchReportsWithoutFilters" 
+                />
+                <v-card flat prepend-icon="mdi-table" title="Transacciones" :loading="loading" class="mt-5">
                     <template v-slot:append>
-                        <v-btn 
-                            color="primary" 
-                            variant="elevated"
-                            @click="openCreateTransaction"
-                        >
+                        <v-btn color="primary" variant="elevated" @click="openCreateTransaction">
                             Nueva transacción
                         </v-btn>
                     </template>
-                    
-                        <br>
-                    </v-card>
-                <TestTable 
-                    :headers="headers" 
-                    :rows="reports" 
-                    editAction
-                    deleteAction
-                    @action="handleTableAction"
-                    editActionName="Editar" 
-                    deleteActionName="Eliminar"
-                />
+
+                    <br>
+                </v-card>
+                <TestTable :headers="headers" :rows="reports" editAction deleteAction @action="handleTableAction"
+                    editActionName="Editar" deleteActionName="Eliminar" />
                 <div class="mt-5">
                     <v-pagination :length="10"></v-pagination>
                 </div>
-                <ConfirmationDialog
-                    :dialogVisible="isDialogVisible"
-                    :row="selectedRow"
-                    @closeDialog="closeDialog"
-                    @confirmDelete="handleDelete"
-                    @update:dialogVisible="isDialogVisible = $event"
-                />
-                <CreateTransactionDialog
-                    @create-transaction="createTransaction"
-                    :isCreateDialogVisible="isCreateDialogVisible"
-                    @closeDialog="closeCreateTransactionDialog"
-                    @update:isCreateDialogVisible="isCreateDialogVisible = $event"
-                />
+                <ConfirmationDialog :dialogVisible="isDialogVisible" :row="selectedRow" @closeDialog="closeDialog"
+                    @confirmDelete="handleDelete" @update:dialogVisible="isDialogVisible = $event" />
+                <CreateTransactionDialog @create-transaction="createTransaction"
+                    :isCreateDialogVisible="isCreateDialogVisible" @closeDialog="closeCreateTransactionDialog"
+                    @update:isCreateDialogVisible="isCreateDialogVisible = $event" />
             </div>
         </v-main>
     </v-layout>
@@ -58,6 +37,7 @@ import SideMenu from '@/components/SideMenu.vue';
 import TestTable from '@/components/TestTable.vue';
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue';
 import CreateTransactionDialog from '@/components/CreateTransactionDialog.vue';
+import TransaccionesFilters from '@/components/TransaccionesFilters.vue';
 import { useTableHeaders } from '@/composables/useTableHeaders';
 import { onMounted, ref } from 'vue';
 import { FinancialReportService } from '@/services/reports/ReportService';
@@ -79,11 +59,11 @@ function optionSelected(option: number) {
 }
 
 function openCreateTransaction() {
-  isCreateDialogVisible.value = true;
+    isCreateDialogVisible.value = true;
 }
 
 function closeDialog() {
-  isDialogVisible.value = false;
+    isDialogVisible.value = false;
 }
 
 function closeCreateTransactionDialog() {
@@ -91,17 +71,17 @@ function closeCreateTransactionDialog() {
 }
 
 async function createTransaction(newTransaction: any) {
-  try {
-    // Llamar al servicio para crear la transacción
-    await financialReportService.createTransaction(newTransaction);
+    try {
+        // Llamar al servicio para crear la transacción
+        await financialReportService.createTransaction(newTransaction);
 
-    // Actualizar la lista de transacciones
-    reports.value = await financialReportService.getReports();
-  } catch (error) {
-    console.error('Error al crear la transacción:', error);
-  } finally {
-    isCreateDialogVisible.value = false; // Cerrar el modal
-  }
+        // Actualizar la lista de transacciones
+        reports.value = await financialReportService.getReports();
+    } catch (error) {
+        console.error('Error al crear la transacción:', error);
+    } finally {
+        isCreateDialogVisible.value = false; // Cerrar el modal
+    }
 }
 
 function handleTableAction({ row, actionType }: { row: FinancialReport; actionType: ActionType }) {
@@ -131,17 +111,37 @@ async function handleDelete(row: FinancialReport) {
     }
 }
 
+async function fetchReportsWithoutFilters() {
+    try {
+        loading.value = true;
+        const fetchedReports = await financialReportService.getReports(); 
+        reports.value = fetchedReports;
+    } catch (error) {
+        console.error('Error al obtener los reportes sin filtros:', error);
+    } finally {
+        loading.value = false;
+    }
+}
+
+async function fetchFilteredReports(filters: {
+    cliente_id?: string;
+    categoría?: string;
+    tipo?: string;
+    estado?: string;
+} = {}) {
+    try {
+        loading.value = true;
+        const filteredReports = await financialReportService.getReports(filters);
+        reports.value = filteredReports;
+    } catch (error) {
+        console.error('Error al obtener los reportes filtrados:', error);
+    } finally {
+        loading.value = false;
+    }
+}
+
 onMounted(async () => {
-  try {
-    loading.value = true;
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const fetchedReports = await financialReportService.getReports();
-    reports.value = fetchedReports;
-  } catch (error) {
-    console.error('Error fetching reports:', error);
-  } finally {
-    loading.value = false;
-  }
+    await fetchReportsWithoutFilters();
 });
 </script>
 
