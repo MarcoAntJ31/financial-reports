@@ -12,7 +12,7 @@ Clona el repositorio:
 
 Abre tu terminal y ejecuta:
 
-git clone https://github.com/usuario/financial-reports-evaluation.git
+git clone https://github.com/MarcoAntJ31/financial-reports.git
 cd financial-reports-evaluation
 Instala las dependencias:
 
