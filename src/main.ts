@@ -3,7 +3,9 @@ import { createPinia } from 'pinia'
 
 import App from './App.vue'
 import router from './router'
+import Toast from "vue-toastification";
 import '@mdi/font/css/materialdesignicons.css'
+import "vue-toastification/dist/index.css";
 
 // Vuetify
 import 'vuetify/styles'
@@ -54,6 +56,8 @@ const vuetify = createVuetify({
 })
 
 const app = createApp(App)
+
+app.use(Toast);
 
 app.use(createPinia())
 app.use(router)

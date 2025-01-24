@@ -1,18 +1,24 @@
 <template>
     <div>
         <TransaccionesFilters @apply-filters="applyFilters" @clear-filters="clearFilters" />
-        <div class="charts-container">
+        <div class="charts-container mt-10">
             <v-card flat class="chart-card">
                 <v-card-title>Ingresos y Gastos</v-card-title>
-                <canvas id="barChart"></canvas>
+                <v-card-text>
+                    <canvas id="barChart"></canvas>
+                </v-card-text>
             </v-card>
             <v-card flat class="chart-card">
                 <v-card-title>Transacciones por Categoría</v-card-title>
-                <canvas id="pieChart"></canvas>
+                <v-card-text>
+                    <canvas id="pieChart"></canvas>
+                </v-card-text>
             </v-card>
             <v-card flat class="chart-card">
                 <v-card-title>Tendencia de Transacciones</v-card-title>
-                <canvas id="lineChart"></canvas>
+                <v-card-text>
+                    <canvas id="lineChart"></canvas>
+                </v-card-text>
             </v-card>
         </div>
     </div>
@@ -28,14 +34,11 @@ const reports = ref([]);
 const filteredReports = ref([]);
 const loading = ref(false);
 
-// Variables para instancias de gráficos
 let barChart, pieChart, lineChart;
 
 const financialReportService = new FinancialReportService();
 
-// Función para inicializar gráficos
 function initCharts() {
-    // Gráfico de barras: Ingresos vs Gastos
     const barChartCtx = document.getElementById("barChart");
     barChart = new Chart(barChartCtx, {
         type: "bar",
@@ -51,7 +54,6 @@ function initCharts() {
         },
     });
 
-    // Gráfico de pastel: Transacciones por Categoría
     const pieChartCtx = document.getElementById("pieChart");
     pieChart = new Chart(pieChartCtx, {
         type: "pie",
@@ -66,7 +68,6 @@ function initCharts() {
         },
     });
 
-    // Gráfico de líneas: Tendencia de Transacciones
     const lineChartCtx = document.getElementById("lineChart");
     lineChart = new Chart(lineChartCtx, {
         type: "line",
@@ -84,7 +85,6 @@ function initCharts() {
     });
 }
 
-// Actualizar gráficos con datos nuevos
 function updateCharts() {
     barChart.data.datasets[0].data = calculateIncomeAndExpenses(filteredReports.value);
     barChart.update();
@@ -98,12 +98,11 @@ function updateCharts() {
     lineChart.update();
 }
 
-// Obtener datos al cargar el componente
 async function fetchReports() {
     loading.value = true;
     try {
         reports.value = await financialReportService.getReports();
-        filteredReports.value = reports.value; // Inicialmente, sin filtros
+        filteredReports.value = reports.value;
         initCharts();
     } catch (error) {
         console.error("Error al obtener reportes:", error);
@@ -112,7 +111,6 @@ async function fetchReports() {
     }
 }
 
-// Filtros
 async function applyFilters(filters) {
     loading.value = true;
     try {
@@ -130,7 +128,6 @@ function clearFilters() {
     updateCharts();
 }
 
-// Computaciones auxiliares
 function calculateIncomeAndExpenses(data) {
     const income = data.filter((t) => t.tipo === "income").reduce((sum, t) => sum + t.cantidad, 0);
     const expense = data.filter((t) => t.tipo === "expense").reduce((sum, t) => sum + t.cantidad, 0);
@@ -159,7 +156,6 @@ function getTransactionAmountsByDate(data) {
     );
 }
 
-// Generar colores aleatorios
 function generateColors(length) {
     const colors = [];
     for (let i = 0; i < length; i++) {
@@ -168,7 +164,6 @@ function generateColors(length) {
     return colors;
 }
 
-// Cargar datos al montar el componente
 onMounted(fetchReports);
 </script>
 

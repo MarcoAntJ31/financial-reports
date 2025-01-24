@@ -82,4 +82,30 @@ export class FinancialReportService {
                 }
             });
     }
+
+    async exportReports(): Promise<void> {
+        const url = 'http://localhost:4000/reports';
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Error exporting reports');
+            }
+
+            const blob = await response.blob();
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'report.xlsx';
+            link.click();
+        } catch (error) {
+            console.error('Error al exportar el reporte:', error);
+            throw error;
+        }
+    }
+    
 }

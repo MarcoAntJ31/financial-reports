@@ -1,33 +1,62 @@
-# financial-reports-evaluation
+Financial Reports Evaluation
+Este proyecto es una prueba técnica para la evaluación de reportes financieros. A continuación, encontrarás las instrucciones para instalar y ejecutar el proyecto en tu entorno local.
 
-This template should help get you started developing with Vue 3 in Vite.
+Requisitos previos
+Antes de comenzar, asegúrate de tener instalado lo siguiente:
 
-## Recommended IDE Setup
+Node.js (versión 16 o superior) – Descargar Node.js
+npm (se incluye con Node.js) o yarn como gestor de paquetes
+Un navegador web moderno
+Instrucciones de instalación
+Clona el repositorio:
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+Abre tu terminal y ejecuta:
 
-## Type Support for `.vue` Imports in TS
+git clone https://github.com/usuario/financial-reports-evaluation.git
+cd financial-reports-evaluation
+Instala las dependencias:
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+Usando npm:
 
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
 npm install
-```
+O, si prefieres usar yarn:
 
-### Compile and Hot-Reload for Development
+yarn install
+Configura las variables de entorno (opcional):
 
-```sh
+Cómo ejecutar el proyecto
+Modo desarrollo:
+
+Inicia el servidor de desarrollo con el siguiente comando:
+
 npm run dev
-```
+Esto abrirá la aplicación en tu navegador (normalmente en http://localhost:5173).
 
-### Type-Check, Compile and Minify for Production
+Generar una versión para producción:
 
-```sh
+Si necesitas crear los archivos optimizados para producción, ejecuta:
+
 npm run build
-```
+Los archivos generados estarán en la carpeta dist/.
+
+Vista previa de la build:
+
+Si deseas previsualizar la versión de producción localmente, usa:
+
+npm run preview
+Esto abrirá la build generada en tu navegador.|
+
+Estructura del proyecto
+El proyecto utiliza las siguientes tecnologías y herramientas:
+
+Vue 3: Framework principal de desarrollo frontend
+Vuetify: Framework basado en Material Design para componentes UI
+Pinia: Sistema de gestión de estado
+Vue Toastification: Para notificaciones rápidas y elegantes
+Vite: Herramienta para desarrollo rápido y eficiente
+ESLint y Prettier: Configuración para garantizar un código limpio y consistente
+Características principales
+CRUD completo: Crear, Leer, Actualizar y Eliminar transacciones financieras
+Filtrado avanzado: Filtros dinámicos por cliente, categoría, tipo y estado
+Exportación de datos: Exporta reportes de transacciones fácilmente
+Interfaz moderna y responsiva: Construida con Vuetify y optimizada para cualquier dispositivo

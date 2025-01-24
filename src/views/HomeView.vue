@@ -1,39 +1,54 @@
 <template>
     <v-layout>
         <v-main>
-            <div class="main-content fill-height pa-10">
+            <div class="main-content pa-10">
                 <TransaccionesFilters 
                     @apply-filters="fetchFilteredReports" 
                     @clear-filters="fetchReportsWithoutFilters" 
+                    :loading="loading" 
                 />
                 <v-card 
                     flat 
                     prepend-icon="mdi-table" 
                     title="Transacciones" 
                     :loading="loading" 
-                    class="mt-5"
+                    class="mt-5 min-h"
                 >
                     <template v-slot:append>
-                        <v-btn 
-                            color="primary" 
-                            variant="elevated" 
-                            @click="openCreateTransaction"
-                        >
-                            Nueva transacción
-                        </v-btn>
+                        <div class="d-flex ga-3">
+                            <v-btn 
+                                color="primary" 
+                                prepend-icon="mdi-plus"
+                                variant="elevated"
+                                :loading="loading" 
+                                @click="openCreateTransaction"
+                            >
+                                Nueva transacción
+                            </v-btn>
+                            <v-btn 
+                                color="secondary" 
+                                prepend-icon="mdi-export"
+                                variant="elevated" 
+                                :loading="loading"
+                                @click="exportReports"
+                            >
+                                Exportar
+                            </v-btn>
+                        </div>
                     </template>
-
                     <br>
                 </v-card>
-                <TestTable 
-                    :headers="headers" 
-                    :rows="formattedReports" 
-                    editAction 
-                    deleteAction 
-                    @action="handleTableAction"
-                    editActionName="Editar" 
-                    deleteActionName="Eliminar" 
-                />
+                <div class="table-container">
+                    <TestTable 
+                        :headers="headers" 
+                        :rows="formattedReports" 
+                        editAction 
+                        deleteAction 
+                        @action="handleTableAction"
+                        editActionName="Editar" 
+                        deleteActionName="Eliminar" 
+                    />
+                </div>
                 <div class="mt-5">
                     <v-pagination :length="10"></v-pagination>
                 </div>
@@ -63,6 +78,7 @@
 
 
 <script setup lang="ts">
+import { useToast } from 'vue-toastification'; 
 import TestTable from '@/components/TestTable.vue';
 import ConfirmationDialog from '@/components/ConfirmationDialog.vue';
 import EditTransactionDialog from '@/components/EditTransactionDialog.vue';
@@ -75,16 +91,16 @@ import type { FinancialReport, ActionType } from '@/services/reports/types';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
-const financialReportService = new FinancialReportService();
+const toast = useToast();
 
+const financialReportService = new FinancialReportService();
 
 const reports = ref<any[]>([]);
 const isDialogVisible = ref(false);
 const isCreateDialogVisible = ref(false);
 const isEditDialogVisible = ref(false);
 const selectedRow = ref<FinancialReport | null>(null);
-const loading = ref(false)
-const optionSelectedNumber = ref(1);
+const loading = ref(false);
 const { headers } = useTableHeaders();
 
 const formattedReports = computed(() =>
@@ -96,10 +112,6 @@ const formattedReports = computed(() =>
 
 function formatFecha(fecha: string): string {
     return format(new Date(fecha), 'dd/MM/yyyy', { locale: es });
-}
-
-function optionSelected(option: number) {
-    optionSelectedNumber.value = option;
 }
 
 function openCreateTransaction() {
@@ -121,30 +133,41 @@ function closeEditTransactionDialog() {
 }
 
 async function createTransaction(newTransaction: any) {
+    loading.value = true;
     try {
         await financialReportService.createTransaction(newTransaction);
+        await new Promise(resolve => setTimeout(resolve, 1500));
         reports.value = await financialReportService.getReports();
+        toast.success('Transacción creada exitosamente.');
     } catch (error) {
         console.error('Error al crear la transacción:', error);
+        toast.error('Hubo un error al crear la transacción.'); 
     } finally {
         isCreateDialogVisible.value = false; 
         selectedRow.value = null;
+        loading.value = false;
     }
 }
 
 async function updateTransaction(updatedTransaction: FinancialReport) {
     if (!updatedTransaction || !updatedTransaction.transaccion_id) {
         console.error('No se pudo identificar la transacción a actualizar.');
+        toast.error('No se pudo identificar la transacción a actualizar.');  
         return;
-    }
-
+    }   
+    loading.value = true;
     try {
         await financialReportService.updateReport(updatedTransaction.transaccion_id, updatedTransaction);
+        await new Promise(resolve => setTimeout(resolve, 1500));
         reports.value = await financialReportService.getReports();
         closeEditTransactionDialog();
         selectedRow.value = null;
+        toast.success('Transacción actualizada exitosamente.'); 
     } catch (error) {
         console.error('Error al actualizar la transacción:', error);
+        toast.error('Hubo un error al actualizar la transacción.'); 
+    } finally {
+        loading.value = false;
     }
 }
 
@@ -161,6 +184,7 @@ function handleTableAction({ row, actionType }: { row: FinancialReport; actionTy
 async function handleDelete(row: FinancialReport) {
     if (!row || !row.transaccion_id) {
         console.error('No se pudo identificar la transacción a eliminar.');
+        toast.error('No se pudo identificar la transacción a eliminar.');  
         return;
     }
     loading.value = true;
@@ -168,8 +192,10 @@ async function handleDelete(row: FinancialReport) {
         await financialReportService.markReportAsInactive(row.transaccion_id);
         const updatedReports = await financialReportService.getReports();
         reports.value = updatedReports;
+        toast.success('Transacción eliminada correctamente.');  
     } catch (error) {
         console.error('Error al marcar la transacción como inactiva:', error);
+        toast.error('Hubo un error al eliminar la transacción.');  
     } finally {
         loading.value = false;
         closeDialog();
@@ -179,10 +205,12 @@ async function handleDelete(row: FinancialReport) {
 async function fetchReportsWithoutFilters() {
     try {
         loading.value = true;
+        await new Promise(resolve => setTimeout(resolve, 1500));
         const fetchedReports = await financialReportService.getReports(); 
         reports.value = fetchedReports;
     } catch (error) {
         console.error('Error al obtener los reportes sin filtros:', error);
+        toast.error('Hubo un error al obtener los reportes.'); 
     } finally {
         loading.value = false;
     }
@@ -196,10 +224,25 @@ async function fetchFilteredReports(filters: {
 } = {}) {
     try {
         loading.value = true;
+        await new Promise(resolve => setTimeout(resolve, 500));
         const filteredReports = await financialReportService.getReports(filters);
         reports.value = filteredReports;
     } catch (error) {
         console.error('Error al obtener los reportes filtrados:', error);
+        toast.error('Hubo un error al obtener los reportes filtrados.');
+    } finally {
+        loading.value = false;
+    }
+}
+
+async function exportReports() {
+    loading.value = true;
+    try {
+        await financialReportService.exportReports();
+        toast.success('Reportes exportados exitosamente.');
+    } catch (error) {
+        console.error('Error al exportar los reportes:', error);
+        toast.error('Hubo un error al exportar los reportes.'); 
     } finally {
         loading.value = false;
     }
@@ -214,12 +257,30 @@ onMounted(async () => {
 .main-content {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    height: 100vh;
 }
 
 .v-layout,
 .v-main {
-    height: 100vh;
+    height: 100%;
     background-color: var(--background-secondary);
+}
+
+.min-h{
+    min-height: 60px;
+}
+
+.table-container {
+    max-height: calc(100vh - 250px);
+    overflow-y: auto; 
+    overflow-x: hidden;
+}
+
+@media (max-width: 768px) {
+    .table-container {
+        max-height: calc(100vh - 230px);
+    }
 }
 </style>

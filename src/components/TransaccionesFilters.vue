@@ -1,8 +1,9 @@
 <template>
-    <v-card>
-        <div class="d-flex align-center justify-center ga-5 pa-4">
+    <v-card class="min-h">
+        <div class="d-flex align-center justify-center ga-3 pa-4">
             <v-text-field 
                 v-model="clientId" 
+                :loading="loading"
                 variant="outlined"
                 color="primary"
                 prepend-icon="mdi-account"
@@ -11,6 +12,7 @@
             <v-text-field 
                 v-model="categoria" 
                 variant="outlined"
+                :loading="loading"
                 color="primary"
                 prepend-icon="mdi-train-car"
                 label="Categoría" 
@@ -18,6 +20,7 @@
             <v-select 
                 v-model="tipo" 
                 color="primary"
+                :loading="loading"
                 :items="transactionTypes" 
                 prepend-icon="mdi-cash"
                 variant="outlined"
@@ -27,6 +30,7 @@
                 v-model="estado" 
                 variant="outlined"
                 color="primary"
+                :loading="loading"
                 prepend-icon="mdi-state-machine"
                 :items="transactionStates" 
                 label="Estado" 
@@ -36,6 +40,8 @@
                 variant="tonal" 
                 size="large"
                 class="mb-5"
+                :loading="loading"
+                prepend-icon="mdi-nuke"
                 @click="clearFilters"
             >
                 Limpiar
@@ -45,6 +51,8 @@
                 variant="elevated" 
                 size="large"
                 class="mb-5"
+                :loading="loading"
+                prepend-icon="mdi-magnify"
                 @click="applyFilters"
             >
                 Buscar
@@ -54,9 +62,15 @@
 </template>
 
 <script setup lang="ts">
-
-import { ref, defineEmits } from 'vue';
+import { ref, defineEmits, defineProps } from 'vue';
 import type { TransactionType, TransactionState } from '@/services/reports/types';
+
+defineProps({
+    loading: {
+        type: Boolean,
+        default: false
+    }
+})
 
 const clientId = ref<string | null>(null);
 const tipo = ref<TransactionType | null>(null);
@@ -85,3 +99,9 @@ function clearFilters() {
     emit('clear-filters');
 }
 </script>
+
+<style scoped>
+.min-h{
+    min-height: 90px;
+}
+</style>
